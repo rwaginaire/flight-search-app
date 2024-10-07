@@ -1,46 +1,52 @@
-package com.example.flightsearch.ui
+package com.example.flightsearch.ui.home
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.flightsearch.FlightSearchTopAppBar
+import com.example.flightsearch.NavigationDestination
 import com.example.flightsearch.R
 import com.example.flightsearch.data.Airport
-import com.example.flightsearch.ui.theme.FlightSearchTheme
+import com.example.flightsearch.data.Flight
+import com.example.flightsearch.ui.AirportSearchResult
+import com.example.flightsearch.ui.search.FlightsDisplay
+
+object HomeDestination : NavigationDestination {
+    override val route = "home"
+    override val titleRes = R.string.app_name
+}
 
 @Composable
 fun HomeScreen(
     onAirportClick: (Airport) -> Unit,
     airportSearchList: List<Airport>,
-    searchText: String
+    searchText: String,
+    favoriteFlights: List<Flight>,
+    onFavoriteClick: (Flight) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     if (searchText != "") {
         SearchResults(
             airportList = airportSearchList,
             onAirportClick = onAirportClick,
+            modifier = modifier
+        )
+    }
+    else {
+        val title = if (favoriteFlights.isNotEmpty()) stringResource(R.string.favorite_routes) else stringResource(
+            R.string.no_favorite
+        )
+        FlightsDisplay(
+            title = title,
+            flights = favoriteFlights,
+            onFavoriteClick = onFavoriteClick,
+            favoriteFlights = favoriteFlights
         )
     }
 }

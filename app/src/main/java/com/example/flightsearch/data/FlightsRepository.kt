@@ -6,22 +6,29 @@ interface FlightsRepository {
     /**
      * Search airport with text search
      */
+    suspend fun getSearchedAirports(text: String): List<Airport>
+
     fun getSearchedAirportsStream(text: String): Flow<List<Airport>>
 
     /**
      * Retrieve all possible destinations from a given airport
      */
-    fun getDestinationsStream(id: Int): Flow<List<Airport>>
+    suspend fun getAllAirports(): List<Airport>
 
     /**
      * Retrieve all favorites flights
      */
+    suspend fun getFavorites(): List<FavoriteFlight>
+
+    /**
+     * Retrieve all favorites flights stream
+     */
     fun getFavoritesStream(): Flow<List<FavoriteFlight>>
 
     /**
-     * Get Airport from id
+     * Get Airport from iata code
      */
-    fun getAirportStream(id: Int): Flow<Airport>
+    suspend fun getAirport(code: String): Airport
 
     /**
      * Insert favorite in the data source

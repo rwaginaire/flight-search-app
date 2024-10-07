@@ -1,12 +1,10 @@
-package com.example.flightsearch.ui
+package com.example.flightsearch.ui.search
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,29 +16,62 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flightsearch.NavigationDestination
 import com.example.flightsearch.R
 import com.example.flightsearch.data.Airport
+import com.example.flightsearch.data.FavoriteFlight
+import com.example.flightsearch.data.Flight
+import com.example.flightsearch.data.MockData
+import com.example.flightsearch.ui.AirportSearchResult
+import com.example.flightsearch.ui.AppViewModelProvider
+
+object SearchDestination : NavigationDestination {
+    override val route = "search"
+    override val titleRes = R.string.search_results
+    const val airportIdArg = "airportId"
+    val routeWithArgs = "$route/{$airportIdArg}"
+}
 
 @Composable
 fun SearchResultsScreen(
-    departureAirport: Airport,
-    destinationAirportList: List<Airport>,
-    onStarClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val favoritesUiState by viewModel.favoritesUiState.collectAsState()
+    SearchResultsBody(
+        departureAirport = uiState.departureAirport,
+        possibleFlights = uiState.flightsList,
+        onFavoriteClick = viewModel::addOrDeleteFavoriteRoute,
+        favoriteFlights = favoritesUiState.favoriteFlights,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun FlightsDisplay(
+    title: String,
+    flights: List<Flight>,
+    onFavoriteClick: (Flight) -> Unit,
+    favoriteFlights: List<Flight>,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
     ) {
         Text(
-            text = "${stringResource(R.string.flights_from)} ${departureAirport.iataCode}",
+            text = title,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
@@ -50,11 +81,14 @@ fun SearchResultsScreen(
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
-            items(items = destinationAirportList) { destinationAirport ->
+            items(items = flights) { flight ->
+                val isFavorite = favoriteFlights.any { f ->
+                    f.departureAirport == flight.departureAirport &&
+                            f.destinationAirport == flight.destinationAirport }
                 FlightResult(
-                    departureAirport = departureAirport,
-                    destinationAirport = destinationAirport,
-                    onStarClick = onStarClick,
+                    flight = flight,
+                    onFavoriteClick = { onFavoriteClick(flight) },
+                    isFavorite = isFavorite,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -63,10 +97,29 @@ fun SearchResultsScreen(
 }
 
 @Composable
-private fun FlightResult(
+fun SearchResultsBody(
     departureAirport: Airport,
-    destinationAirport: Airport,
-    onStarClick: () -> Unit,
+    possibleFlights: List<Flight>,
+    onFavoriteClick: (Flight) -> Unit,
+    favoriteFlights: List<Flight>,
+    modifier: Modifier = Modifier,
+) {
+    val title = "${stringResource(R.string.flights_from)} ${departureAirport.iataCode}"
+
+    FlightsDisplay(
+        title = title,
+        flights = possibleFlights,
+        onFavoriteClick = onFavoriteClick,
+        favoriteFlights = favoriteFlights,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun FlightResult(
+    flight: Flight,
+    onFavoriteClick: () -> Unit,
+    isFavorite: Boolean,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -88,7 +141,7 @@ private fun FlightResult(
                 )
 
                 AirportSearchResult(
-                    airport = departureAirport,
+                    airport = flight.departureAirport,
                     modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small)))
 
                 Text(
@@ -97,16 +150,18 @@ private fun FlightResult(
                     modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_small))
                 )
 
-                AirportSearchResult(airport = destinationAirport)
+                AirportSearchResult(airport = flight.destinationAirport)
             }
             IconButton(
                 enabled = true,
-                onClick = { onStarClick() },
+                onClick = { onFavoriteClick() },
 
             ) {
                 Icon(
-                    Icons.Filled.Star,
-                    contentDescription = stringResource(R.string.favorite)
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = stringResource(R.string.favorite),
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else
+                        Color.Unspecified
                 )
             }
         }
@@ -117,52 +172,19 @@ private fun FlightResult(
 @Composable
 private fun FlightResultPreview() {
     FlightResult(
-        departureAirport = Airport(
-            id = 0,
-            iataCode = "LYS",
-            name = "Lyon Saint-Exupéry Airport",
-            passengers = 100
-        ),
-        destinationAirport = Airport(
-            id = 1,
-            iataCode = "MUC",
-            name = "Munich International Airport",
-            passengers = 200
-        ),
-        {}
+        flight = MockData.flights[0],
+        {},
+        false
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun SearchResultsScreenPreview() {
-    SearchResultsScreen(
-        departureAirport = Airport(
-            id = 0,
-            iataCode = "LYS",
-            name = "Lyon Saint-Exupéry Airport",
-            passengers = 100
-        ),
-        destinationAirportList = listOf(
-            Airport(
-                id = 1,
-                iataCode = "MUC",
-                name = "Munich International Airport",
-                passengers = 200
-            ),
-            Airport(
-                id = 2,
-                iataCode = "ATH",
-                name = "Athens International Airport",
-                passengers = 150
-            ),
-            Airport(
-                id = 3,
-                iataCode = "FCO",
-                name = "Leonardo Da Vinci International Airport",
-                passengers = 150
-            ),
-        ),
-        {}
+private fun SearchResultsBodyPreview() {
+    SearchResultsBody(
+        departureAirport = MockData.airports[0],
+        possibleFlights = MockData.flights,
+        onFavoriteClick = {},
+        favoriteFlights = emptyList()
     )
 }

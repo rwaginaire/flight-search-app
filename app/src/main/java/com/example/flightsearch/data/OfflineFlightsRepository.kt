@@ -3,15 +3,19 @@ package com.example.flightsearch.data
 import kotlinx.coroutines.flow.Flow
 
 class OfflineFlightsRepository(private val flightSearchDao: FlightSearchDao) : FlightsRepository {
-    override fun getFavoritesStream(): Flow<List<FavoriteFlight>> = flightSearchDao.getFavorites()
+    override suspend fun getFavorites(): List<FavoriteFlight> = flightSearchDao.getFavorites()
+
+    override fun getFavoritesStream(): Flow<List<FavoriteFlight>> = flightSearchDao.getFavoritesStream()
 
     override suspend fun deleteFavorite(favoriteFlight: FavoriteFlight) = flightSearchDao.deleteFavorite(favoriteFlight)
 
-    override fun getDestinationsStream(id: Int): Flow<List<Airport>> = flightSearchDao.getDestinations(id)
+    override suspend fun getAllAirports(): List<Airport> = flightSearchDao.getAllAirports()
 
-    override fun getSearchedAirportsStream(text: String): Flow<List<Airport>> = flightSearchDao.searchAirport(text)
+    override suspend fun getSearchedAirports(text: String): List<Airport> = flightSearchDao.searchAirport(text)
 
-    override fun getAirportStream(id: Int): Flow<Airport> = flightSearchDao.getAirport(id)
+    override fun getSearchedAirportsStream(text: String): Flow<List<Airport>> = flightSearchDao.searchAirportStream(text)
+
+    override suspend fun getAirport(code: String): Airport = flightSearchDao.getAirport(code)
 
     override suspend fun insertFavorite(favoriteFlight: FavoriteFlight) = flightSearchDao.insertFavorite(favoriteFlight)
 }

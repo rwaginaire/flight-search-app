@@ -22,19 +22,30 @@ interface FlightSearchDao {
         OR name like '%' || :searchText || '%'
         """
     )
-    fun searchAirport(searchText: String): Flow<List<Airport>>
+    suspend fun searchAirport(searchText: String): List<Airport>
 
     @Query(
         """
         SELECT * FROM airport 
-        WHERE id <> :id
+        WHERE iata_code like '%' || :searchText || '%'
+        OR name like '%' || :searchText || '%'
         """
     )
-    fun getDestinations(id: Int): Flow<List<Airport>>
+    fun searchAirportStream(searchText: String): Flow<List<Airport>>
+
+    @Query(
+        """
+        SELECT * FROM airport
+        """
+    )
+    suspend fun getAllAirports(): List<Airport>
 
     @Query("SELECT * from favorite")
-    fun getFavorites(): Flow<List<FavoriteFlight>>
+    suspend fun getFavorites(): List<FavoriteFlight>
 
-    @Query("SELECT * from airport WHERE id = :id")
-    fun getAirport(id: Int): Flow<Airport>
+    @Query("SELECT * from favorite")
+    fun getFavoritesStream(): Flow<List<FavoriteFlight>>
+
+    @Query("SELECT * from airport WHERE iata_code = :code")
+    suspend fun getAirport(code: String): Airport
 }
