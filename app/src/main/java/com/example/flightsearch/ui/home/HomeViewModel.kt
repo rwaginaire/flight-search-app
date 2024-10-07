@@ -1,17 +1,14 @@
 package com.example.flightsearch.ui.home
 
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flightsearch.data.FavoriteFlight
 import com.example.flightsearch.data.Flight
 import com.example.flightsearch.data.FlightsRepository
-import com.example.flightsearch.ui.search.SearchUiState
-import com.example.flightsearch.ui.search.toFavorite
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -66,9 +63,34 @@ class HomeViewModel(
         }
     }
 
+    fun addOrDeleteFavoriteRoute(flight: Flight) {
+        val favorite = favoritesUiState.value.favoriteFlights.firstOrNull { it.destinationAirport == flight.destinationAirport && it.departureAirport == flight.departureAirport }
+        if (favorite != null)
+            deleteFavoriteFlight(favorite)
+        else
+            addFavoriteFlight(flight)
+    }
+
+    private fun addFavoriteFlight(flight: Flight) {
+        viewModelScope.launch {
+            flightsRepository.insertFavorite(flight.toFavorite())
+        }
+    }
+
     fun deleteFavoriteFlight(flight: Flight) {
         viewModelScope.launch {
             flightsRepository.deleteFavorite(flight.toFavorite())
         }
     }
 }
+
+
+
+/**
+ * Extension function to convert [Flight] to [FavoriteFlight]
+ */
+fun Flight.toFavorite(): FavoriteFlight = FavoriteFlight(
+    departureCode = departureAirport.iataCode,
+    destinationCode = destinationAirport.iataCode,
+    id = id
+)

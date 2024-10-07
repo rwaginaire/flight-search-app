@@ -91,7 +91,10 @@ fun FlightSearchApp(
                         type = NavType.IntType
                     })
                 ) {
-                    SearchResultsScreen()
+                    SearchResultsScreen(
+                        favoriteFlights = favoritesUiState.favoriteFlights,
+                        onRouteFavoriteClick = viewModel::addOrDeleteFavoriteRoute
+                    )
                 }
             }
         }

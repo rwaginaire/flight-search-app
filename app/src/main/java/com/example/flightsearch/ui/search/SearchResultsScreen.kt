@@ -45,16 +45,17 @@ object SearchDestination : NavigationDestination {
 
 @Composable
 fun SearchResultsScreen(
+    favoriteFlights: List<Flight>,
+    onRouteFavoriteClick: (Flight) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val favoritesUiState by viewModel.favoritesUiState.collectAsState()
     SearchResultsBody(
         departureAirport = uiState.departureAirport,
         possibleFlights = uiState.flightsList,
-        onFavoriteClick = viewModel::addOrDeleteFavoriteRoute,
-        favoriteFlights = favoritesUiState.favoriteFlights,
+        onFavoriteClick = onRouteFavoriteClick,
+        favoriteFlights = favoriteFlights,
         modifier = modifier
     )
 }
