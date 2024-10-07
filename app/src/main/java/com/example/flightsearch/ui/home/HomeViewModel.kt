@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.flightsearch.data.FavoriteFlight
 import com.example.flightsearch.data.Flight
 import com.example.flightsearch.data.FlightsRepository
+import com.example.flightsearch.data.UserPreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +16,25 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val flightsRepository: FlightsRepository
+    private val flightsRepository: FlightsRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val homeUiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            userPreferencesRepository.searchText.collect { text ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        searchText = text,
+                        searchedAirports = flightsRepository.getSearchedAirports(text)
+                    )
+                }
+            }
+        }
+    }
 
     val favoritesUiState: StateFlow<FavoritesUiState> =
         flightsRepository.getFavoritesStream().map { favoriteFlights ->
@@ -50,6 +65,7 @@ class HomeViewModel(
             )
         }
         updateSearchedAirports()
+        savePreferences(searchedText)
     }
 
     private fun updateSearchedAirports() {
@@ -60,6 +76,12 @@ class HomeViewModel(
                     searchedAirports = searchedAirports
                 )
             }
+        }
+    }
+
+    private fun savePreferences(searchedText: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveSearchTextPreference(searchedText)
         }
     }
 

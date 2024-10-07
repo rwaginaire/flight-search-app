@@ -13,7 +13,11 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         // Initializer for HomeViewModel
         initializer {
-            HomeViewModel(flightSearchApplication().container.flightsRepository)
+            val application = flightSearchApplication()
+            HomeViewModel(
+                application.container.flightsRepository,
+                application.userPreferencesRepository
+            )
         }
 
         // Initializer for SearchViewModel
