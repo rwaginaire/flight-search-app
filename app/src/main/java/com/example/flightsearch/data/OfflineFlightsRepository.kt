@@ -13,7 +13,7 @@ class OfflineFlightsRepository(private val flightSearchDao: FlightSearchDao) : F
 
     override suspend fun getSearchedAirports(text: String): List<Airport> = flightSearchDao.searchAirport(text)
 
-    override fun getSearchedAirportsStream(text: String): Flow<List<Airport>> = flightSearchDao.searchAirportStream(text)
+//    override fun getSearchedAirportsStream(text: String): Flow<List<Airport>> = flightSearchDao.searchAirportStream(text)
 
     override suspend fun getAirport(code: String): Airport = flightSearchDao.getAirport(code)
 

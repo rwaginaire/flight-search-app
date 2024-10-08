@@ -8,7 +8,7 @@ interface FlightsRepository {
      */
     suspend fun getSearchedAirports(text: String): List<Airport>
 
-    fun getSearchedAirportsStream(text: String): Flow<List<Airport>>
+//    fun getSearchedAirportsStream(text: String): Flow<List<Airport>>
 
     /**
      * Retrieve all possible destinations from a given airport

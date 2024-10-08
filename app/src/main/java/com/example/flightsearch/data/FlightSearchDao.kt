@@ -20,18 +20,19 @@ interface FlightSearchDao {
         SELECT * FROM airport 
         WHERE iata_code like '%' || :searchText || '%'
         OR name like '%' || :searchText || '%'
+        ORDER BY passengers DESC
         """
     )
     suspend fun searchAirport(searchText: String): List<Airport>
 
-    @Query(
-        """
-        SELECT * FROM airport 
-        WHERE iata_code like '%' || :searchText || '%'
-        OR name like '%' || :searchText || '%'
-        """
-    )
-    fun searchAirportStream(searchText: String): Flow<List<Airport>>
+//    @Query(
+//        """
+//        SELECT * FROM airport
+//        WHERE iata_code like '%' || :searchText || '%'
+//        OR name like '%' || :searchText || '%'
+//        """
+//    )
+//    fun searchAirportStream(searchText: String): Flow<List<Airport>>
 
     @Query(
         """
