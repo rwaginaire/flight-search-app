@@ -60,6 +60,10 @@ fun FlightSearchApp(
                     viewModel.updateSearchText(it)
                 },
                 onClick = { navController.navigateUp() },
+                onClearClick = {
+                    viewModel.updateSearchText("")
+                    navController.navigateUp()
+                },
                 modifier = Modifier.padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),

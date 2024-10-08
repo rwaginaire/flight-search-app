@@ -9,8 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.sharp.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -19,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
@@ -58,8 +65,10 @@ fun SearchBar(
     inputText: String,
     onTextChange: (String) -> Unit,
     onClick: () -> Unit = {},
+    onClearClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val focusRequester = remember { FocusRequester() }
     OutlinedTextField(
         value = inputText,
         onValueChange = onTextChange,
@@ -79,7 +88,8 @@ fun SearchBar(
             .fillMaxWidth()
             .padding(
                 horizontal = dimensionResource(R.dimen.padding_small)
-            ),
+            )
+            .focusRequester(focusRequester),
         enabled = true,
         singleLine = true,
         interactionSource = remember { MutableInteractionSource() }
@@ -91,7 +101,20 @@ fun SearchBar(
                         }
                     }
                 }
+            },
+        trailingIcon = {
+            IconButton(
+                onClick = {
+                    onClearClick()
+                    focusRequester.requestFocus()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = stringResource(R.string.clear_search),
+                )
             }
+        }
     )
 }
 
