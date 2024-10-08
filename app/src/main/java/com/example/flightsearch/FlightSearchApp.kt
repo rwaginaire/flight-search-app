@@ -9,9 +9,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,6 +23,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -35,6 +38,7 @@ import com.example.flightsearch.ui.home.HomeScreen
 import com.example.flightsearch.ui.home.HomeViewModel
 import com.example.flightsearch.ui.search.SearchDestination
 import com.example.flightsearch.ui.search.SearchResultsScreen
+import com.example.flightsearch.ui.theme.FlightSearchTheme
 
 @Composable
 fun FlightSearchApp(
@@ -115,23 +119,34 @@ fun FlightSearchTopAppBar(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (canNavigateBack) {
-        TopAppBar(
-            title = { Text(title) },
-            navigationIcon = {
+    TopAppBar(
+        title = { Text(title) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+        ),
+        navigationIcon = {
+            if (canNavigateBack) {
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.back)
                     )
                 }
-            },
-            modifier = modifier
-        )
-    } else {
-        TopAppBar(
-            title = { Text(title) },
-            modifier = modifier
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FlightSearchTopAppBarPreview() {
+    FlightSearchTheme {
+        FlightSearchTopAppBar(
+            title = stringResource(R.string.app_name),
+            false,
+            {}
         )
     }
 }
