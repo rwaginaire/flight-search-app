@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -52,7 +53,9 @@ fun FlightSearchApp(
             )
         }
     ) { innerPadding ->
-        Column {
+        Column(
+            modifier = modifier.padding(dimensionResource(R.dimen.padding_small))
+        ) {
             val focusManager = LocalFocusManager.current
             SearchBar(
                 inputText = homeUiState.searchText,
@@ -72,8 +75,7 @@ fun FlightSearchApp(
             )
             NavHost(
                 navController = navController,
-                startDestination = HomeDestination.route,
-                modifier = modifier
+                startDestination = HomeDestination.route
             ) {
                 composable(route = HomeDestination.route) {
                     HomeScreen(
